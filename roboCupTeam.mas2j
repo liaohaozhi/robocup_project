@@ -1,0 +1,12 @@
+MAS roboCupTeam {
+
+	infrastructure: Centralised
+
+	environment: RoboCupGame
+
+	agents:
+		agent1 sample_agent;
+
+	aslSourcePath:
+		"src/asl";
+}
