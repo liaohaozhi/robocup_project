@@ -14,6 +14,9 @@ public class Player extends Thread {
 	private InetAddress m_host; // Server address
 	private int m_port; // server port
 	private String m_team; // team name
+	private char m_side;
+	private int m_number;
+	private String m_playMode;
 	private boolean m_playing; // controls the MainLoop
 	private Pattern message_pattern = Pattern.compile("^\\((\\w+?)\\s.*");
 	private Pattern hear_pattern = Pattern.compile("^\\(hear\\s(\\w+?)\\s(\\w+?)\\s(.*)\\).*");
@@ -26,6 +29,7 @@ public class Player extends Thread {
 	private String name;
 	private String action;
 	private final Object actionLock = new Object();
+	protected VisualInfo visualInfo;
 
 	// ---------------------------------------------------------------------------
 	// This constructor opens socket for connection with server
@@ -62,6 +66,10 @@ public class Player extends Thread {
 
 			parseInitCommand(new String(buffer));
 			m_port = packet.getPort();
+
+			if(Pattern.matches("^before_kick_off.*",m_playMode)) {
+				move( -Math.random()*52.5 , 34 - Math.random()*68.0 );
+			}
 
 			// Now we should be connected to the server
 			// and we know side, player number and play mode
@@ -158,6 +166,9 @@ public class Player extends Thread {
 		if (!m.matches()) {
 			throw new IOException(message);
 		}
+		m_side = m.group(1).charAt(0);
+		m_number = Integer.parseInt(m.group(2));
+		m_playMode = m.group(3);
 	}
 
 	// ===========================================================================
@@ -179,7 +190,7 @@ public class Player extends Thread {
 		if (m.group(1).compareTo("see") == 0) {
 			VisualInfo info = new VisualInfo(message);
 			info.parse();
-//			m_brain.see(info);
+			this.visualInfo = info;
 		} else if (m.group(1).compareTo("hear") == 0)
 			parseHear(message);
 		// first put it somewhere on my side
@@ -201,8 +212,8 @@ public class Player extends Thread {
 		uttered = m.group(3);
 //		if (sender.compareTo("referee") == 0)
 //			m_brain.hear(time, uttered);
-//		// else if( coach_pattern.matcher(sender).find())
-//		// m_brain.hear(time,sender,uttered);
+		// else if( coach_pattern.matcher(sender).find())
+		// m_brain.hear(time,sender,uttered);
 //		else if (sender.compareTo("self") != 0)
 //			m_brain.hear(time, Integer.parseInt(sender), uttered);
 	}
