@@ -42,7 +42,6 @@ class VisualInfo {
 		m_line_list = new Vector<LineInfo>(20);
 		m_flag_list = new Vector<FlagInfo>(60);
 		m_objects = new Vector<ObjectInfo>(113);
-		System.out.println("create new visual info\n\n\n");
 	}
 
 	public Vector<BallInfo> getBallList() {
