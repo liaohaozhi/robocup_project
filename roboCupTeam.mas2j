@@ -5,7 +5,7 @@ MAS roboCupTeam {
 	environment: RoboCupGame
 
 	agents:
-		agent1 sample_agent;
+		player1 attacker;
 
 	aslSourcePath:
 		"src/asl";

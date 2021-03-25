@@ -1,9 +1,11 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.logging.Logger;
 import java.util.regex.*;
 
-public class Player {
+public class Player extends Thread {
+	private Logger logger = Logger.getLogger("Player."+RoboCupGame.class.getName());
 
 	// ===========================================================================
 	// Private members
@@ -19,15 +21,21 @@ public class Player {
 	// private Pattern coach_pattern = Pattern.compile("coach");
 	// constants
 	private static final int MSG_SIZE = 4096; // Size of socket buffer
+	private static final int	simulator_step = 100;
+
+	private String name;
+	private String action;
+	private final Object actionLock = new Object();
 
 	// ---------------------------------------------------------------------------
 	// This constructor opens socket for connection with server
-	public Player(InetAddress host, int port, String team) throws SocketException {
+	public Player(InetAddress host, int port, String team, String name) throws SocketException {
 		m_socket = new DatagramSocket();
 		m_host = host;
 		m_port = port;
 		m_team = team;
 		m_playing = true;
+		this.name = name;
 	}
 
 	// ---------------------------------------------------------------------------
@@ -41,23 +49,57 @@ public class Player {
 
 	// ---------------------------------------------------------------------------
 	// This is main loop for player
-	protected void mainLoop() throws IOException {
-		byte[] buffer = new byte[MSG_SIZE];
-		DatagramPacket packet = new DatagramPacket(buffer, MSG_SIZE);
+	@Override
+	public void run() {
+		try {
+			byte[] buffer = new byte[MSG_SIZE];
+			DatagramPacket packet = new DatagramPacket(buffer, MSG_SIZE);
 
-		// first we need to initialize connection with server
-		init();
+			// first we need to initialize connection with server
+			init();
 
-		m_socket.receive(packet);
-		parseInitCommand(new String(buffer));
-		m_port = packet.getPort();
+			m_socket.receive(packet);
 
-		// Now we should be connected to the server
-		// and we know side, player number and play mode
-		while (m_playing)
-			parseSensorInformation(receive());
-		finalize();
+			parseInitCommand(new String(buffer));
+			m_port = packet.getPort();
+
+			// Now we should be connected to the server
+			// and we know side, player number and play mode
+			while (m_playing) {
+				parseSensorInformation(receive());
+
+				synchronized (actionLock) {
+					if (action != null) {
+						logger.info(name + " is doing action " + action);
+						if (action.equals("turn")) {
+							turn(40);
+						}
+						//reset action
+						action = null;
+					}
+				}
+
+				// sleep one step to ensure that we will not send
+				// two commands in one cycle.
+				try{
+					Thread.sleep(2*simulator_step);
+				}catch(Exception e){}
+			}
+			finalize();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
+
+	public void doAction(String action) {
+		synchronized (actionLock) {
+			//wait last action finished
+			if (this.action == null) {
+				this.action = action;
+			}
+		}
+	}
+
 
 	// ===========================================================================
 	// Implementation of SendCommand Interface
@@ -116,11 +158,6 @@ public class Player {
 		if (!m.matches()) {
 			throw new IOException(message);
 		}
-
-		// todo: initialize player's brain
-
-		move( -Math.random()*52.5 , 34 - Math.random()*68.0 );
-
 	}
 
 	// ===========================================================================
