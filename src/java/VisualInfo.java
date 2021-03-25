@@ -45,23 +45,23 @@ class VisualInfo {
 		System.out.println("create new visual info\n\n\n");
 	}
 
-	public Vector<?> getBallList() {
+	public Vector<BallInfo> getBallList() {
 		return m_ball_list;
 	}
 
-	public Vector<?> getPlayerList() {
+	public Vector<PlayerInfo> getPlayerList() {
 		return m_player_list;
 	}
 
-	public Vector<?> getGoalList() {
+	public Vector<GoalInfo> getGoalList() {
 		return m_goal_list;
 	}
 
-	public Vector<?> getLineList() {
+	public Vector<LineInfo> getLineList() {
 		return m_line_list;
 	}
 
-	public Vector<?> getFlagList() {
+	public Vector<FlagInfo> getFlagList() {
 		return m_flag_list;
 	}
 
