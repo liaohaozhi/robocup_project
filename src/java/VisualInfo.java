@@ -26,22 +26,23 @@ class VisualInfo {
 	public String m_message;
 
 	// Split objects into specific lists
-	private Vector<?> m_ball_list;
-	private Vector<?> m_player_list;
-	private Vector<?> m_flag_list;
-	private Vector<?> m_goal_list;
-	private Vector<?> m_line_list;
+	private Vector<BallInfo> m_ball_list;
+	private Vector<PlayerInfo> m_player_list;
+	private Vector<FlagInfo> m_flag_list;
+	private Vector<GoalInfo> m_goal_list;
+	private Vector<LineInfo> m_line_list;
 
 	// Constructor for 'see' information
 	public VisualInfo(String info) {
 		info.trim();
 		m_message = info;
-		m_player_list = new Vector<Object>(22);
-		m_ball_list = new Vector<Object>(1);
-		m_goal_list = new Vector<Object>(10);
-		m_line_list = new Vector<Object>(20);
-		m_flag_list = new Vector<Object>(60);
+		m_player_list = new Vector<PlayerInfo>(22);
+		m_ball_list = new Vector<BallInfo>(1);
+		m_goal_list = new Vector<GoalInfo>(10);
+		m_line_list = new Vector<LineInfo>(20);
+		m_flag_list = new Vector<FlagInfo>(60);
 		m_objects = new Vector<ObjectInfo>(113);
+		System.out.println("create new visual info\n\n\n");
 	}
 
 	public Vector<?> getBallList() {
@@ -161,21 +162,25 @@ class VisualInfo {
 				objInfo = new PlayerInfo();
 				break;
 			}
+			m_player_list.add((PlayerInfo) objInfo);
 		} // Ball
-		else if (p_ball.matcher(n).matches())
+		else if (p_ball.matcher(n).matches()) {
 			objInfo = new BallInfo();
+			m_ball_list.add((BallInfo) objInfo);
 		// Goal
-		else if (p_goal.matcher(n).matches()) {
+		}else if (p_goal.matcher(n).matches()) {
 			if (len == 2)
 				objInfo = new GoalInfo(objectName[1].charAt(0)); // if there is side info
 			else
 				objInfo = new GoalInfo();
+			m_goal_list.add((GoalInfo) objInfo);
 		} // Line
 		else if (p_line.matcher(n).matches()) {
 			if (len == 2)
 				objInfo = new LineInfo(objectName[1].charAt(0)); // if we know which line it is
 			else
 				objInfo = new LineInfo();
+			m_line_list.add((LineInfo) objInfo);
 		} // Flag
 		else if (p_flag.matcher(n).matches()) {
 			char type = ' '; // p|g
@@ -244,6 +249,7 @@ class VisualInfo {
 				// particular flag (i.e. "flag c", or "flag p l t")
 				objInfo = new FlagInfo(flagType, type, pos1, pos2, num, out);
 			}
+			m_flag_list.add((FlagInfo) objInfo);
 		}
 		return objInfo;
 	}
