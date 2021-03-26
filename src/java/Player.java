@@ -86,12 +86,6 @@ public class Player extends Thread {
 						action = null;
 					}
 				}
-
-				// sleep one step to ensure that we will not send
-				// two commands in one cycle.
-				try{
-					Thread.sleep(2*simulator_step);
-				}catch(Exception e){}
 			}
 			finalize();
 		} catch (IOException e) {
