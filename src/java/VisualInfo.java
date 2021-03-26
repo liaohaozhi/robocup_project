@@ -246,7 +246,7 @@ class VisualInfo {
 					flagType = flagType + " " + pos2;
 				// Implementing flags like this, allows one to specifically find a
 				// particular flag (i.e. "flag c", or "flag p l t")
-				objInfo = new FlagInfo(flagType, type, pos1, pos2, num, out);
+				objInfo = new FlagInfo(num == 0 ? flagType: flagType+num, type, pos1, pos2, num, out);
 			}
 			m_flag_list.add((FlagInfo) objInfo);
 		}
