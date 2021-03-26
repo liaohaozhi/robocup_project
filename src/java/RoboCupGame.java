@@ -45,9 +45,6 @@ public class RoboCupGame extends Environment {
 
     /** update player percepts with visualInfo contents*/
     void updatePlayerPerceptsFromVisual(String player, VisualInfo visualInfo) {
-    	clearPercepts(player);
-    	updatePlayerPercepts(player, NOT_SEE_BALL);	//to do: remove this line once we have a proper asl
-    	
     	addObjectPercepts(player, visualInfo.getBallList());
     	addObjectPercepts(player, visualInfo.getGoalList());
     	addObjectPercepts(player, visualInfo.getFlagList());	
@@ -72,6 +69,9 @@ public class RoboCupGame extends Environment {
         try {
             Thread.sleep(200);
         } catch (Exception e) {}
+        clearPercepts(agName);
+    	updatePlayerPercepts(agName, NOT_SEE_BALL);	//to do: remove this line once we have a proper asl
+    	updatePlayerPercepts(agName, ASSyntax.createAtom(player.getM_side()+"side"));
         updatePlayerPerceptsFromVisual(agName, player.visualInfo);
         return true; // the action was executed with success
     }

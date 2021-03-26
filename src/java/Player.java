@@ -102,6 +102,9 @@ public class Player extends Thread {
 		}
 	}
 
+	public char getM_side() {
+		return m_side;
+	}
 
 	// ===========================================================================
 	// Implementation of SendCommand Interface
