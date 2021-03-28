@@ -81,5 +81,8 @@ public class RoboCupGame extends Environment {
     @Override
     public void stop() {
         super.stop();
+        for(Player player : PLAYERS.values()) {
+            player.m_playing = false;
+        }
     }
 }

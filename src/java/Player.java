@@ -17,7 +17,7 @@ public class Player extends Thread {
 	private char m_side;
 	private int m_number;
 	private String m_playMode;
-	private boolean m_playing; // controls the MainLoop
+	protected boolean m_playing; // controls the MainLoop
 	private Pattern message_pattern = Pattern.compile("^\\((\\w+?)\\s.*");
 	private Pattern hear_pattern = Pattern.compile("^\\(hear\\s(\\w+?)\\s(\\w+?)\\s(.*)\\).*");
 
