@@ -65,9 +65,7 @@ public class RoboCupGame extends Environment {
         logger.info(agName + " executing: " + action);
         Player player = PLAYERS.get(agName);
         player.doAction(action.toString());
-        try {
-            Thread.sleep(200);
-        } catch (Exception e) {}
+        
         clearPercepts(agName);
     	updatePlayerPercepts(agName, ASSyntax.createAtom(player.getM_side()+"side"));
     	if(player.visualInfo != null)
