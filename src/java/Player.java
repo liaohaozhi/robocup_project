@@ -14,10 +14,10 @@ public class Player extends Thread {
 	private InetAddress m_host; // Server address
 	private int m_port; // server port
 	private String m_team; // team name
-	private char m_side;
+	protected char m_side;
 	private int m_number;
 	private String m_playMode;
-	private boolean m_playing; // controls the MainLoop
+	protected boolean m_playing; // controls the MainLoop
 	private Pattern message_pattern = Pattern.compile("^\\((\\w+?)\\s.*");
 	private Pattern hear_pattern = Pattern.compile("^\\(hear\\s(\\w+?)\\s(\\w+?)\\s(.*)\\).*");
 
@@ -26,20 +26,25 @@ public class Player extends Thread {
 	private static final int MSG_SIZE = 4096; // Size of socket buffer
 	private static final int	simulator_step = 100;
 
-	private String name;
+	protected String playerName;
 	private String action;
 	private final Object actionLock = new Object();
+
+	//updated on each player loop
 	protected VisualInfo visualInfo;
+	protected MessageInfo messageInfo;
+	protected final PlayerRole playerRole;
 
 	// ---------------------------------------------------------------------------
 	// This constructor opens socket for connection with server
-	public Player(InetAddress host, int port, String team, String name) throws SocketException {
+	public Player(InetAddress host, int port, String team, String name, PlayerRole playerRole) throws SocketException {
 		m_socket = new DatagramSocket();
 		m_host = host;
 		m_port = port;
 		m_team = team;
 		m_playing = true;
-		this.name = name;
+		this.playerName = name;
+		this.playerRole = playerRole;
 	}
 
 	// ---------------------------------------------------------------------------
@@ -67,8 +72,9 @@ public class Player extends Thread {
 			parseInitCommand(new String(buffer));
 			m_port = packet.getPort();
 
+			//setup before kick off
 			if(Pattern.matches("^before_kick_off.*",m_playMode)) {
-				move( -Math.random()*52.5 , 34 - Math.random()*68.0 );
+				setupPlayerPosition();
 			}
 
 			// Now we should be connected to the server
@@ -78,10 +84,8 @@ public class Player extends Thread {
 
 				synchronized (actionLock) {
 					if (action != null) {
-						logger.info(name + " is doing action " + action);
-						if (action.equals("turn")) {
-							turn(40);
-						}
+						logger.info(playerName + " is doing action " + action);
+						Action.execute(this, action);
 						//reset action
 						action = null;
 					}
@@ -90,6 +94,21 @@ public class Player extends Thread {
 			finalize();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	private void setupPlayerPosition() {
+		switch (playerRole) {
+			case goalie:
+				if (m_side == 'l') {
+					move( -50 , 0 );
+				}
+				else {
+					move( 50 , 0 );
+				}
+			case forward:
+			default:
+				move( -Math.random()*52.5 , 34 - Math.random()*68.0 );
 		}
 	}
 
@@ -207,12 +226,7 @@ public class Player extends Thread {
 		time = Integer.parseInt(m.group(1));
 		sender = m.group(2);
 		uttered = m.group(3);
-//		if (sender.compareTo("referee") == 0)
-//			m_brain.hear(time, uttered);
-		// else if( coach_pattern.matcher(sender).find())
-		// m_brain.hear(time,sender,uttered);
-//		else if (sender.compareTo("self") != 0)
-//			m_brain.hear(time, Integer.parseInt(sender), uttered);
+		this.messageInfo = new MessageInfo(time, sender, uttered);
 	}
 
 	// ---------------------------------------------------------------------------

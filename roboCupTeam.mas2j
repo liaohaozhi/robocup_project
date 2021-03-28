@@ -6,6 +6,7 @@ MAS roboCupTeam {
 
 	agents:
 		player1 attacker;
+		goalie goalie;
 
 	aslSourcePath:
 		"src/asl";

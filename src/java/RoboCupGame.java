@@ -16,16 +16,27 @@ public class RoboCupGame extends Environment {
 
     static final Map<String, Player> PLAYERS = new HashMap<String, Player>();
 
+    static final Map<PlayerRole, Perceptor> PERCEPTORS = new HashMap<>();
+
     /** Called before the MAS execution with the args informed in .mas2j */
     @Override
     public void init(String[] args) {
         super.init(args);
-        addPlayer("player1");
+        
+        //add perceptors
+        PERCEPTORS.put(PlayerRole.goalie, new Perceptor.Goalie());
+
+        //add players
+        addPlayer("player1", PlayerRole.forward);
+        addPlayer("goalie", PlayerRole.goalie);
+
+        //start game
+        addPercept(Literals.GAME_START);
     }
 
-    private void addPlayer(String playerName) {
+    private void addPlayer(String playerName, PlayerRole role) {
         try {
-            Player player = new Player(InetAddress.getByName("localhost"), 6000, "test", playerName);
+            Player player = new Player(InetAddress.getByName("localhost"), 8000, "test", playerName, role);
             PLAYERS.put(playerName, player);
             player.start();
         } catch (SocketException e) {
@@ -39,6 +50,15 @@ public class RoboCupGame extends Environment {
     void updatePlayerPercepts(String player, Literal literal) {
         addPercept(player, literal);
         logger.info("update " + player + " percepts: " + literal);
+    }
+
+    void updatePlayerPerceptsFromHearing(String player, MessageInfo messageInfo) {
+        //pattern: message(sender, uttered, time)
+        Literal msgLiteral = ASSyntax.createLiteral("message",
+                ASSyntax.createString(messageInfo.getSender()),
+                ASSyntax.createString(messageInfo.getUttered()),
+                ASSyntax.createNumber(messageInfo.getTime()));
+        updatePlayerPercepts(player, msgLiteral);
     }
 
     /** update player percepts with visualInfo contents*/
@@ -67,9 +87,20 @@ public class RoboCupGame extends Environment {
         player.doAction(action.toString());
         
         clearPercepts(agName);
-    	updatePlayerPercepts(agName, ASSyntax.createAtom(player.getM_side()+"side"));
-    	if(player.visualInfo != null)
-    		updatePlayerPerceptsFromVisual(agName, player.visualInfo);
+
+        PlayerRole role = player.playerRole;
+        Perceptor perceptor = PERCEPTORS.get(role);
+        if (perceptor != null) {
+            perceptor.accept(this, player);
+        }
+        else {
+            updatePlayerPercepts(agName, ASSyntax.createAtom(player.getM_side()+"side"));
+            if(player.visualInfo != null)
+                updatePlayerPerceptsFromVisual(agName, player.visualInfo);
+            if(player.messageInfo != null) {
+                updatePlayerPerceptsFromHearing(agName, player.messageInfo);
+            }
+        }
         return true; // the action was executed with success
     }
 
@@ -77,5 +108,8 @@ public class RoboCupGame extends Environment {
     @Override
     public void stop() {
         super.stop();
+        for(Player player : PLAYERS.values()) {
+            player.m_playing = false;
+        }
     }
 }

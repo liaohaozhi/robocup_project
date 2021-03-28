@@ -55,6 +55,17 @@ class ObjectInfo
   {
     return m_type;
   }
+
+  @Override
+  public String toString() {
+    return "ObjectInfo{" +
+            "m_type='" + m_type + '\'' +
+            ", m_distance=" + m_distance +
+            ", m_direction=" + m_direction +
+            ", m_distChange=" + m_distChange +
+            ", m_dirChange=" + m_dirChange +
+            '}';
+  }
 }
 
 
