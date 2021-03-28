@@ -72,7 +72,8 @@ public class RoboCupGame extends Environment {
         clearPercepts(agName);
     	updatePlayerPercepts(agName, NOT_SEE_BALL);	//to do: remove this line once we have a proper asl
     	updatePlayerPercepts(agName, ASSyntax.createAtom(player.getM_side()+"side"));
-        updatePlayerPerceptsFromVisual(agName, player.visualInfo);
+    	if(player.visualInfo != null)
+    		updatePlayerPerceptsFromVisual(agName, player.visualInfo);
         return true; // the action was executed with success
     }
 
