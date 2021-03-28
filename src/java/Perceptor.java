@@ -24,7 +24,7 @@ public abstract class Perceptor implements BiConsumer<RoboCupGame, Player> {
             }
             logger.info("update " + player + " goal info : " + ownGoal);
             if (ownGoal != null && ownGoal.m_distance < 5.0) {
-                game.updatePlayerPercepts(player.getName(), Literals.GOALIE_AT_GOAL);
+                game.addPlayerPercept(player.getName(), Literals.GOALIE_AT_GOAL);
             }
 
             //update goalie visual
@@ -33,9 +33,9 @@ public abstract class Perceptor implements BiConsumer<RoboCupGame, Player> {
                 BallInfo ballInfo = ballList.iterator().next();
                 logger.info("update " + player + " ball info : " + ballInfo);
                 if (ballInfo.m_distance < 20.0) {
-                    game.updatePlayerPercepts(playerName, Literals.GOALIE_SAVE_BALL);
+                    game.addPlayerPercept(playerName, Literals.GOALIE_SAVE_BALL);
                     if (ballInfo.m_distance < 1.0) {
-                        game.updatePlayerPercepts(playerName, Literals.GOALIE_BALL_CLOSE);
+                        game.addPlayerPercept(playerName, Literals.GOALIE_BALL_CLOSE);
                     }
                 }
             }

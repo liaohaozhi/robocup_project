@@ -24,20 +24,18 @@ public class Player extends Thread {
 	// private Pattern coach_pattern = Pattern.compile("coach");
 	// constants
 	private static final int MSG_SIZE = 4096; // Size of socket buffer
-	private static final int	simulator_step = 100;
-
 	protected String playerName;
-	private String action;
-	private final Object actionLock = new Object();
 
 	//updated on each player loop
 	protected VisualInfo visualInfo;
 	protected MessageInfo messageInfo;
 	protected final PlayerRole playerRole;
+	
+	private RoboCupGame roboCupGame;
 
 	// ---------------------------------------------------------------------------
 	// This constructor opens socket for connection with server
-	public Player(InetAddress host, int port, String team, String name, PlayerRole playerRole) throws SocketException {
+	public Player(InetAddress host, int port, String team, String name, PlayerRole playerRole, RoboCupGame roboCupGame) throws SocketException {
 		m_socket = new DatagramSocket();
 		m_host = host;
 		m_port = port;
@@ -45,6 +43,7 @@ public class Player extends Thread {
 		m_playing = true;
 		this.playerName = name;
 		this.playerRole = playerRole;
+		this.roboCupGame = roboCupGame;
 	}
 
 	// ---------------------------------------------------------------------------
@@ -81,15 +80,6 @@ public class Player extends Thread {
 			// and we know side, player number and play mode
 			while (m_playing) {
 				parseSensorInformation(receive());
-
-				synchronized (actionLock) {
-					if (action != null) {
-						logger.info(playerName + " is doing action " + action);
-						Action.execute(this, action);
-						//reset action
-						action = null;
-					}
-				}
 			}
 			finalize();
 		} catch (IOException e) {
@@ -113,12 +103,8 @@ public class Player extends Thread {
 	}
 
 	public void doAction(String action) {
-		synchronized (actionLock) {
-			//wait last action finished
-			if (this.action == null) {
-				this.action = action;
-			}
-		}
+		logger.info(playerName + " is doing action " + action);
+		Action.execute(this, action);
 	}
 
 	public char getM_side() {
@@ -209,7 +195,8 @@ public class Player extends Thread {
 			this.visualInfo = info;
 		} else if (m.group(1).compareTo("hear") == 0)
 			parseHear(message);
-		// first put it somewhere on my side
+		
+		roboCupGame.setPlayerPercepts(this.playerName,  this.visualInfo,  this.messageInfo);
 	}
 
 	// ---------------------------------------------------------------------------
