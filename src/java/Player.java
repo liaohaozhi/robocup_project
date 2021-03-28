@@ -1,3 +1,5 @@
+import org.omg.CORBA.TIMEOUT;
+
 import java.io.*;
 import java.net.*;
 import java.util.*;
@@ -29,7 +31,10 @@ public class Player extends Thread {
 	private String name;
 	private String action;
 	private final Object actionLock = new Object();
+
+	//updated on each player loop
 	protected VisualInfo visualInfo;
+	protected MessageInfo messageInfo;
 
 	// ---------------------------------------------------------------------------
 	// This constructor opens socket for connection with server
@@ -207,12 +212,7 @@ public class Player extends Thread {
 		time = Integer.parseInt(m.group(1));
 		sender = m.group(2);
 		uttered = m.group(3);
-//		if (sender.compareTo("referee") == 0)
-//			m_brain.hear(time, uttered);
-		// else if( coach_pattern.matcher(sender).find())
-		// m_brain.hear(time,sender,uttered);
-//		else if (sender.compareTo("self") != 0)
-//			m_brain.hear(time, Integer.parseInt(sender), uttered);
+		this.messageInfo = new MessageInfo(time, sender, uttered);
 	}
 
 	// ---------------------------------------------------------------------------

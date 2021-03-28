@@ -27,7 +27,7 @@ public class RoboCupGame extends Environment {
 
     private void addPlayer(String playerName) {
         try {
-            Player player = new Player(InetAddress.getByName("localhost"), 6000, "test", playerName);
+            Player player = new Player(InetAddress.getByName("localhost"), 8000, "test", playerName);
             PLAYERS.put(playerName, player);
             player.start();
         } catch (SocketException e) {
@@ -41,6 +41,15 @@ public class RoboCupGame extends Environment {
     void updatePlayerPercepts(String player, Literal literal) {
         addPercept(player, literal);
         logger.info("update " + player + " percepts: " + literal);
+    }
+
+    void updatePlayerPerceptsFromHearing(String player, MessageInfo messageInfo) {
+        //pattern: message(sender, uttered, time)
+        Literal msgLiteral = ASSyntax.createLiteral("message",
+                ASSyntax.createString(messageInfo.getSender()),
+                ASSyntax.createString(messageInfo.getUttered()),
+                ASSyntax.createNumber(messageInfo.getTime()));
+        updatePlayerPercepts(player, msgLiteral);
     }
 
     /** update player percepts with visualInfo contents*/
@@ -74,6 +83,9 @@ public class RoboCupGame extends Environment {
     	updatePlayerPercepts(agName, ASSyntax.createAtom(player.getM_side()+"side"));
     	if(player.visualInfo != null)
     		updatePlayerPerceptsFromVisual(agName, player.visualInfo);
+    	if(player.messageInfo != null) {
+            updatePlayerPerceptsFromHearing(agName, player.messageInfo);
+        }
         return true; // the action was executed with success
     }
 
