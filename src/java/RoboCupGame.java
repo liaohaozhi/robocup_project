@@ -68,7 +68,10 @@ public class RoboCupGame extends Environment {
         try {
             Thread.sleep(200);
         } catch (Exception e) {}
-        updatePlayerPerceptsFromVisual(agName, player.visualInfo);
+        clearPercepts(agName);
+    	updatePlayerPercepts(agName, ASSyntax.createAtom(player.getM_side()+"side"));
+    	if(player.visualInfo != null)
+    		updatePlayerPerceptsFromVisual(agName, player.visualInfo);
         return true; // the action was executed with success
     }
 
