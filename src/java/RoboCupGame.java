@@ -15,19 +15,27 @@ public class RoboCupGame extends Environment {
     private Logger logger = Logger.getLogger("roboCupTeam."+RoboCupGame.class.getName());
 
     static final Map<String, Player> PLAYERS = new HashMap<String, Player>();
-    static final Literal NOT_SEE_BALL = Literal.parseLiteral("notSeeBall");
+    static final Map<PlayerRole, Perceptor> PERCEPTORS = new HashMap<>();
 
     /** Called before the MAS execution with the args informed in .mas2j */
     @Override
     public void init(String[] args) {
         super.init(args);
-        addPlayer("player1");
-        updatePlayerPercepts("player1", NOT_SEE_BALL);
+
+        //add perceptors
+        PERCEPTORS.put(PlayerRole.goalie, new Perceptor.Goalie());
+
+        //add players
+        addPlayer("player1", PlayerRole.forward);
+        addPlayer("goalie", PlayerRole.goalie);
+
+        //start game
+        addPercept(Literals.GAME_START);
     }
 
-    private void addPlayer(String playerName) {
+    private void addPlayer(String playerName, PlayerRole role) {
         try {
-            Player player = new Player(InetAddress.getByName("localhost"), 8000, "test", playerName);
+            Player player = new Player(InetAddress.getByName("localhost"), 8000, "test", playerName, role);
             PLAYERS.put(playerName, player);
             player.start();
         } catch (SocketException e) {
@@ -79,12 +87,19 @@ public class RoboCupGame extends Environment {
             Thread.sleep(200);
         } catch (Exception e) {}
         clearPercepts(agName);
-    	updatePlayerPercepts(agName, NOT_SEE_BALL);	//to do: remove this line once we have a proper asl
-    	updatePlayerPercepts(agName, ASSyntax.createAtom(player.getM_side()+"side"));
-    	if(player.visualInfo != null)
-    		updatePlayerPerceptsFromVisual(agName, player.visualInfo);
-    	if(player.messageInfo != null) {
-            updatePlayerPerceptsFromHearing(agName, player.messageInfo);
+
+        PlayerRole role = player.playerRole;
+        Perceptor perceptor = PERCEPTORS.get(role);
+        if (perceptor != null) {
+            perceptor.accept(this, player);
+        }
+        else {
+            updatePlayerPercepts(agName, ASSyntax.createAtom(player.getM_side()+"side"));
+            if(player.visualInfo != null)
+                updatePlayerPerceptsFromVisual(agName, player.visualInfo);
+            if(player.messageInfo != null) {
+                updatePlayerPerceptsFromHearing(agName, player.messageInfo);
+            }
         }
         return true; // the action was executed with success
     }
