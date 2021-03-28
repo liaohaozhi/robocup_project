@@ -28,6 +28,7 @@ public class RoboCupGame extends Environment {
 
         //add players
         addPlayer("player1", PlayerRole.forward);
+        addPlayer("player2", PlayerRole.forward);
         addPlayer("goalie", PlayerRole.goalie);
 
         //start game
@@ -36,7 +37,7 @@ public class RoboCupGame extends Environment {
 
     private void addPlayer(String playerName, PlayerRole role) {
         try {
-            Player player = new Player(InetAddress.getByName("localhost"), 8000, "test", playerName, role);
+            Player player = new Player(InetAddress.getByName("localhost"), 6000, "test", playerName, role);
             PLAYERS.put(playerName, player);
             player.start();
         } catch (SocketException e) {

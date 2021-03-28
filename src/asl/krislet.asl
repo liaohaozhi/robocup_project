@@ -12,9 +12,6 @@
 	if (BallDir == 0) {
 		if (BallDist > 1){
 			// if we are facing the ball and it is far away, we want to run towards it.
-			//
-			// the power of the dash is proportional to how far we need to run, 
-			// so hopefully we do not run past the ball
 			dash(100);.wait(200);
 		} else {
 			// if we are facing the ball and close to it, we can kick it

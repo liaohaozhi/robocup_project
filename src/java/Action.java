@@ -1,3 +1,5 @@
+import java.util.regex.Pattern;
+
 class Action {
     static int DEFAULT_TURN_MOMENT = 40;
     static int DEFAULT_KICK_POWER = 100;
@@ -9,6 +11,15 @@ class Action {
     static final String KICK_BALL_TO_OPP_GOAL = "kickBallToOppositeGoal";
 
     static void execute(Player player, String action) {
+    	if (Pattern.matches("^turn\\(-?[0-9]+\\)$", action)) {
+    		player.turn(Integer.parseInt(action.substring(5, action.length()-1)));
+		} else if (Pattern.matches("^dash\\(-?[0-9|\\.]+\\)$", action)) {
+			player.dash(Double.parseDouble(action.substring(5, action.length()-1)));
+		} else if (Pattern.matches("^kick\\(-?[0-9|\\.]+,-?[0-9|\\.]+\\)$", action)) {
+			player.kick(Double.parseDouble(action.substring(5, action.indexOf(","))), 
+					Double.parseDouble(action.substring(action.indexOf(",")+1, action.length()-1)));
+		}
+    	
         switch (action) {
             case TURN:
                 player.turn(DEFAULT_TURN_MOMENT);
