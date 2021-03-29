@@ -27,18 +27,18 @@ public class RoboCupGame extends Environment {
         PERCEPTORS.put(PlayerRole.goalie, new Perceptor.Goalie());
 
         //add players
-        addPlayer("player1", PlayerRole.forward, this);
-        //addPlayer("player2", PlayerRole.forward, this);
-        //addPlayer("goalie", PlayerRole.goalie, this);
+        addPlayer("player1", PlayerRole.forward);
+        addPlayer("player2", PlayerRole.forward);
+        addPlayer("goalie", PlayerRole.goalie);
 
         //start game
         addPercept(Literals.GAME_START);
     }
 
-    private void addPlayer(String playerName, PlayerRole role, RoboCupGame roboCupGame) {
+    private void addPlayer(String playerName, PlayerRole role) {
         try {
             Player player = new Player(InetAddress.getByName("localhost"), 6000, "test", 
-            		playerName, role, roboCupGame);
+            		playerName, role);
             PLAYERS.put(playerName, player);
             player.start();
         } catch (SocketException e) {
@@ -54,7 +54,7 @@ public class RoboCupGame extends Environment {
         logger.info("update " + player + " percepts: " + literal);
     }
 
-    void updatePlayerPerceptsFromHearing(String player, MessageInfo messageInfo) {
+    private void updatePlayerPerceptsFromHearing(String player, MessageInfo messageInfo) {
         //pattern: message(sender, uttered, time)
         Literal msgLiteral = ASSyntax.createLiteral("message",
                 ASSyntax.createString(messageInfo.getSender()),
@@ -64,15 +64,26 @@ public class RoboCupGame extends Environment {
     }
 
     /** update player percepts with visualInfo contents*/
-    void updatePlayerPerceptsFromVisual(String player, VisualInfo visualInfo) {   	
+    private void updatePlayerPerceptsFromVisual(String player, VisualInfo visualInfo) {   	
     	addPerceptsForObjectInfos(player, visualInfo.getBallList());
     	addPerceptsForObjectInfos(player, visualInfo.getGoalList());
     	addPerceptsForObjectInfos(player, visualInfo.getFlagList());	
     }
     
+    /** add the direction and distances for a list of visible objects to a player's percepts*/
+    private void addPerceptsForObjectInfos(String player, Vector<?> objects) {
+    	for(Object o: objects) {
+    		Literal literal = ASSyntax.createLiteral(
+    				((ObjectInfo)o).getType().replaceAll("\\s","")+"Visible", 
+            		ASSyntax.createNumber(((ObjectInfo)o).getDistance()), 
+            		ASSyntax.createNumber(((ObjectInfo)o).getDirection()));
+    		addPlayerPercept(player, literal);
+    	}
+    }
+    
     public void setPlayerPercepts(String playerName, VisualInfo visualInfo, MessageInfo messageInfo) {
     	Player player = PLAYERS.get(playerName);
-    	logger.info("ahhhhhhh");
+    	
     	clearPercepts(playerName);
 
         PlayerRole role = player.playerRole;
@@ -89,23 +100,12 @@ public class RoboCupGame extends Environment {
         if (visualInfo != null)
         	updatePlayerPerceptsFromVisual(playerName, visualInfo);
     }
-    
-    /** add the direction and distances for a list of visible objects to a player's percepts*/
-    void addPerceptsForObjectInfos(String player, Vector<?> objects) {
-    	for(Object o: objects) {
-    		Literal literal = ASSyntax.createLiteral(
-    				((ObjectInfo)o).getType().replaceAll("\\s","")+"Visible", 
-            		ASSyntax.createNumber(((ObjectInfo)o).getDistance()), 
-            		ASSyntax.createNumber(((ObjectInfo)o).getDirection()));
-    		addPlayerPercept(player, literal);
-    	}
-    }
 
     @Override
     public boolean executeAction(String agName, Structure action) {
-        logger.info(agName + " executing: " + action);
         Player player = PLAYERS.get(agName);
         player.doAction(action.toString());
+		setPlayerPercepts(agName,  player.visualInfo,  player.messageInfo);
         return true; // the action was executed with success
     }
 

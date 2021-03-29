@@ -30,12 +30,10 @@ public class Player extends Thread {
 	protected VisualInfo visualInfo;
 	protected MessageInfo messageInfo;
 	protected final PlayerRole playerRole;
-	
-	private RoboCupGame roboCupGame;
 
 	// ---------------------------------------------------------------------------
 	// This constructor opens socket for connection with server
-	public Player(InetAddress host, int port, String team, String name, PlayerRole playerRole, RoboCupGame roboCupGame) throws SocketException {
+	public Player(InetAddress host, int port, String team, String name, PlayerRole playerRole) throws SocketException {
 		m_socket = new DatagramSocket();
 		m_host = host;
 		m_port = port;
@@ -43,7 +41,6 @@ public class Player extends Thread {
 		m_playing = true;
 		this.playerName = name;
 		this.playerRole = playerRole;
-		this.roboCupGame = roboCupGame;
 	}
 
 	// ---------------------------------------------------------------------------
@@ -195,8 +192,6 @@ public class Player extends Thread {
 			this.visualInfo = info;
 		} else if (m.group(1).compareTo("hear") == 0)
 			parseHear(message);
-		
-		roboCupGame.setPlayerPercepts(this.playerName,  this.visualInfo,  this.messageInfo);
 	}
 
 	// ---------------------------------------------------------------------------

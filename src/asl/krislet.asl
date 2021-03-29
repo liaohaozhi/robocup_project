@@ -2,25 +2,57 @@
 //Initial Facts
 !start.
 
-//Rules
 
 //Plans
 
-// if the ball is visible, then we can determine if it is near or far,
-// and we can determine if we are facing the ball (or should turn to the ball)
-+!start : ballVisible(BallDist, BallDir) <-
-	if (BallDir == 0) {
-		if (BallDist > 1){
-			// if we are facing the ball and it is far away, we want to run towards it.
-			dash(100);.wait(200);
-		} else {
-			// if we are facing the ball and close to it, we can kick it
-			kick(100, 0);.wait(200);
-		};
+// if the ball is not visible, turn to try and find it
++!start : not ballVisible(BallDist, BallDir) & not ballClose <-
+	if (ballRightOfPlayer){
+		turn(30);
+		.wait(200);
 	} else {
-		turn(BallDir);.wait(200);
+		turn(-30);
+		.wait(200);
 	};!start.
 
-// if the ball is not visible, we should turn to look for it
-+!start : not ballVisible(BallDist, BallDir) <-
-	turn(40);.wait(200); !start.
+// if the ball is visible, then we can determine if it is near or far,
+// and we can determine if we are facing the ball (or should turn to the ball)
++!start : ballVisible(BallDist, BallDir) & not ballClose <-
+	if (BallDir < 15 & BallDir > -15){
+		if (BallDist < 1){
+			+ballClose;
+		} else {
+			dash(100);
+			.wait(200);
+		}
+	} elif (BallDir > 0) {
+		+ballRightOfPlayer;
+		turn(BallDir);
+		.wait(200);
+	} elif (BallDir < 0) {
+		-ballRightOfPlayer;
+		turn(BallDir);
+		.wait(200);
+	};!start.
+	
+// if the ball is close and opponent goal is visible, kick the ball at the goal
++!start : ballClose & lside & goalrVisible(GoalDist, GoalDir) <- 
+	kick(100, GoalDir);
+	-ballClose;
+	.wait(200);
+	!start.
++!start : ballClose & rside & goallVisible(GoalDist, GoalDir) <- 
+	kick(100, GoalDir);
+	-ballClose;
+	.wait(200);
+	!start.
+	
+// if the ball is close and opponent goal is not visible, turn to look for the goal
++!start : ballClose & lside & not goalrVisible(GoalDist, GoalDir)  <- 
+	turn(30);
+	.wait(200);
+	!start.
++!start : ballClose & rside & not goallVisible(GoalDist, GoalDir) <- 
+	turn(30);
+	.wait(200);
+	!start.
