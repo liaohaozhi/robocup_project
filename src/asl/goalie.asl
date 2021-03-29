@@ -1,13 +1,41 @@
-//intents
+//beliefs
+atGoal.
+
+//intentions
+!waitSaveBall.
 
 //plans
 
-//idle
-+gameStart <- !waitSaveBall.
-+!waitSaveBall: atGoal <- turnToBall; .wait(200); !waitSaveBall.
-+!waitSaveBall: not atGoal <- runBackToGoal; .wait(200); !waitSaveBall.
+//Waiting at goal
+//not see ball
++!waitSaveBall : atGoal & not ball(BallDist, BallDir) <-
+    turn(40);
+    !waitSaveBall.
+//see ball
++!waitSaveBall : atGoal & ball(BallDist, BallDir) <-
+    if (BallDist > 100 | not BallDir == 0) {
+        turn(BallDir);
+		!waitSaveBall;
+    }
+    else {
+		//reach ball
+        dash(100);
+        -atGoal;
+		!reachBall;
+    }.
 
-//save ball
-+saveBall <- !saveBall.
-+!saveBall : not ballClose <- runToBall; .wait(200); !saveBall.
-+!saveBall : ballClose <- kickBall; .wait(200); !waitSaveBall.
+//Reach ball
+//see ball
++!reachBall : ball(BallDist, BallDir) <-
+	if (not BallDir == 0) {
+		turn(BallDir);
+		!reachBall;
+	}
+	elif (BallDist > 1) {
+		dash(100);
+		!reachBall;
+	}.
+//not see ball
++!reachBall : not ball(BallDist, BallDir) <-
+	turn(40);
+	!reachBall.
