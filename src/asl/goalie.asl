@@ -7,13 +7,11 @@ atGoal.
 //plans
 
 //Waiting at goal
-//not see ball
 +!waitSaveBall : atGoal & not ball(BallDist, BallDir) <-
     turn(40);
     !waitSaveBall.
-//see ball
 +!waitSaveBall : atGoal & ball(BallDist, BallDir) <-
-    if (BallDist > 100 | not BallDir == 0) {
+    if (BallDist > 20 | not BallDir == 0) {
         turn(BallDir);
 		!waitSaveBall;
     }
@@ -25,7 +23,6 @@ atGoal.
     }.
 
 //Reach ball
-//see ball
 +!reachBall : ball(BallDist, BallDir) <-
 	if (not BallDir == 0) {
 		turn(BallDir);
@@ -34,8 +31,36 @@ atGoal.
 	elif (BallDist > 1) {
 		dash(100);
 		!reachBall;
+	}
+	elif (BallDist <= 1) {
+		!clearBall;
 	}.
-//not see ball
 +!reachBall : not ball(BallDist, BallDir) <-
 	turn(40);
 	!reachBall.
+	
+//clear ball
+//todo: add clear plan, pass the nearest player or kick to opposite side
++!clearBall <- 
+	kick(100, 0);
+	!runBackAtOwnGoal.
+
+//run back
++!runBackAtOwnGoal : not ownGoal(GoalDist, GoalDir) <-
+	turn(40);
+	!runBackAtOwnGoal.
+	
++!runBackAtOwnGoal : ownGoal(GoalDist, GoalDir) <-
+	if (not GoalDir == 0) {
+		turn(GoalDir);
+		!runBackAtOwnGoal;
+	}
+	elif (GoalDist > 5) {
+		dash(100);
+		!runBackAtOwnGoal;
+	}
+	else {
+		turn(180); //turn back
+		+atGoal;
+		!waitSaveBall;
+	}.
