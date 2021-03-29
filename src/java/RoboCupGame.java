@@ -28,16 +28,12 @@ public class RoboCupGame extends Environment {
 
         //add players
         addPlayer("player1", PlayerRole.forward);
-        addPlayer("player2", PlayerRole.forward);
         addPlayer("goalie", PlayerRole.goalie);
-
-        //start game
-        addPercept(Literals.GAME_START);
     }
 
     private void addPlayer(String playerName, PlayerRole role) {
         try {
-            Player player = new Player(InetAddress.getByName("localhost"), 6000, "test", 
+            Player player = new Player(InetAddress.getByName("localhost"), 8000, "test",
             		playerName, role);
             PLAYERS.put(playerName, player);
             player.start();
@@ -86,15 +82,8 @@ public class RoboCupGame extends Environment {
     	
     	clearPercepts(playerName);
 
-        PlayerRole role = player.playerRole;
-        Perceptor perceptor = PERCEPTORS.get(role);
-        if (perceptor != null) {
-            perceptor.accept(this, player);
-        }
-        else {
-            addPlayerPercept(playerName, ASSyntax.createAtom(player.getM_side()+"side"));
-        }
-    	
+    	addPlayerPercept(playerName, ASSyntax.createAtom(player.getM_side()+"side"));
+
         if (messageInfo != null)
         	updatePlayerPerceptsFromHearing(playerName, messageInfo);
         if (visualInfo != null)
@@ -105,7 +94,24 @@ public class RoboCupGame extends Environment {
     public boolean executeAction(String agName, Structure action) {
         Player player = PLAYERS.get(agName);
         player.doAction(action.toString());
-		setPlayerPercepts(agName,  player.visualInfo,  player.messageInfo);
+
+        //wait 2 steps for action affect
+        try {
+            Thread.sleep(200);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        PlayerRole role = player.playerRole;
+        //Run custom perceptor for the role
+        //Otherwise run default setPlayerPercepts which adds all visualInfo and messageInfo percepts
+        if (PERCEPTORS.containsKey(role)) {
+            Perceptor perceptor = PERCEPTORS.get(role);
+            perceptor.accept(this, player);
+        }
+        else {
+            setPlayerPercepts(agName,  player.visualInfo,  player.messageInfo);
+        }
         return true; // the action was executed with success
     }
 
@@ -114,7 +120,7 @@ public class RoboCupGame extends Environment {
     public void stop() {
         super.stop();
         for(Player player : PLAYERS.values()) {
-            player.m_playing = false;
+            player.finalize();
         }
     }
 }
