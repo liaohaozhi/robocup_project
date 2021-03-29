@@ -12,6 +12,8 @@ import java.util.Vector;
 import java.util.logging.*;
 
 public class RoboCupGame extends Environment {
+	private static final int PORT_NUMBER = 6000;
+	
     private Logger logger = Logger.getLogger("roboCupTeam."+RoboCupGame.class.getName());
 
     static final Map<String, Player> PLAYERS = new HashMap<String, Player>();
@@ -33,7 +35,7 @@ public class RoboCupGame extends Environment {
 
     private void addPlayer(String playerName, PlayerRole role) {
         try {
-            Player player = new Player(InetAddress.getByName("localhost"), 8000, "test",
+            Player player = new Player(InetAddress.getByName("localhost"), PORT_NUMBER, "test",
             		playerName, role);
             PLAYERS.put(playerName, player);
             player.start();
