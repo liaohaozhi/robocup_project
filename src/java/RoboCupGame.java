@@ -35,8 +35,7 @@ public class RoboCupGame extends Environment {
 
     private void addPlayer(String playerName, PlayerRole role) {
         try {
-            Player player = new Player(InetAddress.getByName("localhost"), PORT_NUMBER, "test",
-            		playerName, role);
+            Player player = new Player(InetAddress.getByName("localhost"), PORT_NUMBER, "test", playerName, role);
             PLAYERS.put(playerName, player);
             player.start();
         } catch (SocketException e) {
@@ -59,6 +58,11 @@ public class RoboCupGame extends Environment {
                 ASSyntax.createString(messageInfo.getUttered()),
                 ASSyntax.createNumber(messageInfo.getTime()));
         addPlayerPercept(player, msgLiteral);
+        
+        // After we add the visual percepts, we delete the player's messageInfo.
+        // This way, we only get a percept when we receive a message, instead of 
+        // every time a we get percepts after receiving the message.
+        PLAYERS.get(player).messageInfo = null;
     }
 
     /** update player percepts with visualInfo contents*/
@@ -85,7 +89,10 @@ public class RoboCupGame extends Environment {
     	clearPercepts(playerName);
 
     	addPlayerPercept(playerName, ASSyntax.createAtom(player.getM_side()+"side"));
-
+    	addPlayerPercept(playerName, ASSyntax.createAtom("started_at_"+player.getM_playMode()));
+    	
+    	if(player.isConnected_to_server())
+    		addPlayerPercept(playerName, ASSyntax.createAtom("connected"));    	
         if (messageInfo != null)
         	updatePlayerPerceptsFromHearing(playerName, messageInfo);
         if (visualInfo != null)

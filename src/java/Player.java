@@ -17,6 +17,7 @@ public class Player extends Thread {
 	protected char m_side;
 	private int m_number;
 	private String m_playMode;
+	private boolean connected_to_server;
 	protected boolean m_playing; // controls the MainLoop
 	private Pattern message_pattern = Pattern.compile("^\\((\\w+?)\\s.*");
 	private Pattern hear_pattern = Pattern.compile("^\\(hear\\s(\\w+?)\\s(\\w+?)\\s(.*)\\).*");
@@ -95,7 +96,7 @@ public class Player extends Thread {
 				}
 			case forward:
 			default:
-				move( -Math.random()*52.5 , 34 - Math.random()*68.0 );
+				//move( -Math.random()*52.5 , 34 - Math.random()*68.0 );
 		}
 	}
 
@@ -108,6 +109,14 @@ public class Player extends Thread {
 		return m_side;
 	}
 
+	public String getM_playMode() {
+		return m_playMode;
+	}
+	
+	public boolean isConnected_to_server() {
+		return connected_to_server;
+	}
+	
 	// ===========================================================================
 	// Implementation of SendCommand Interface
 
@@ -168,6 +177,7 @@ public class Player extends Thread {
 		m_side = m.group(1).charAt(0);
 		m_number = Integer.parseInt(m.group(2));
 		m_playMode = m.group(3);
+		connected_to_server = true;
 	}
 
 	// ===========================================================================
@@ -208,6 +218,7 @@ public class Player extends Thread {
 		time = Integer.parseInt(m.group(1));
 		sender = m.group(2);
 		uttered = m.group(3);
+		
 		this.messageInfo = new MessageInfo(time, sender, uttered);
 	}
 
