@@ -165,6 +165,18 @@ public class Player extends Thread {
 	public void catch_ball(double direction) {
 		send("(catch " + Double.toString(direction) + ")");
 	}
+	
+	// ---------------------------------------------------------------------------
+	// This function sends score command to the server
+	public void score() {
+		send("(score)");
+	}
+	
+	// ---------------------------------------------------------------------------
+	// This function sends sense_body command to the server
+	public void sense_body() {
+		send("(sense-body)");
+	}
 
 	// ---------------------------------------------------------------------------
 	// This function sends bye command to the server
