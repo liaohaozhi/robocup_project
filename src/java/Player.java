@@ -159,12 +159,38 @@ public class Player extends Thread {
 	public void changeView(String angle, String quality) {
 		send("(change_view " + angle + " " + quality + ")");
 	}
+	
+	// ---------------------------------------------------------------------------
+	// This function sends catch command to the server
+	public void catch_ball(double direction) {
+		send("(catch " + Double.toString(direction) + ")");
+	}
+	
+	// ---------------------------------------------------------------------------
+	// This function sends score command to the server
+	public void score() {
+		send("(score)");
+	}
+	
+	// ---------------------------------------------------------------------------
+	// This function sends sense_body command to the server
+	public void sense_body() {
+		send("(sense-body)");
+	}
 
 	// ---------------------------------------------------------------------------
 	// This function sends bye command to the server
 	public void bye() {
 		m_playing = false;
 		send("(bye)");
+	}
+
+	// ===========================================================================
+	// Here comes collection of communication function
+	// ---------------------------------------------------------------------------
+	// This function sends initialization command to the server
+	private void init() {
+		send("(init " + m_team + " (version 9))");
 	}
 
 	// ---------------------------------------------------------------------------
@@ -179,15 +205,7 @@ public class Player extends Thread {
 		m_playMode = m.group(3);
 		connected_to_server = true;
 	}
-
-	// ===========================================================================
-	// Here comes collection of communication function
-	// ---------------------------------------------------------------------------
-	// This function sends initialization command to the server
-	private void init() {
-		send("(init " + m_team + " (version 9))");
-	}
-
+	
 	// ---------------------------------------------------------------------------
 	// This function parses sensor information
 	private void parseSensorInformation(String message) throws IOException {
