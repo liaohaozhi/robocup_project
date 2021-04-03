@@ -6,6 +6,7 @@ MAS roboCupTeam {
 
 	agents:
 		player1 krislet;
+		player2 krislet;
 		goalie goalie;
 
 	aslSourcePath:

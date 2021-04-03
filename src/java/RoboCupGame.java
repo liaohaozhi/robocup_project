@@ -30,6 +30,7 @@ public class RoboCupGame extends Environment {
 
         //add players
         addPlayer("player1", PlayerRole.forward);
+        addPlayer("player2", PlayerRole.forward);
         addPlayer("goalie", PlayerRole.goalie);
     }
 
@@ -51,6 +52,7 @@ public class RoboCupGame extends Environment {
         logger.info("update " + player + " percepts: " + literal);
     }
 
+    /** update player percepts with messageInfo contents*/
     private void updatePlayerPerceptsFromHearing(String player, MessageInfo messageInfo) {
         //pattern: message(sender, uttered, time)
         Literal msgLiteral = ASSyntax.createLiteral("message",
@@ -70,32 +72,47 @@ public class RoboCupGame extends Environment {
     	addPerceptsForObjectInfos(player, visualInfo.getBallList());
     	addPerceptsForObjectInfos(player, visualInfo.getGoalList());
     	addPerceptsForObjectInfos(player, visualInfo.getFlagList());	
+    	addPerceptsForObjectInfos(player, visualInfo.getPlayerList());
     }
     
     /** add the direction and distances for a list of visible objects to a player's percepts*/
     private void addPerceptsForObjectInfos(String player, Vector<?> objects) {
     	for(Object o: objects) {
-    		Literal literal = ASSyntax.createLiteral(
-    				((ObjectInfo)o).getType().replaceAll("\\s","")+"Visible", 
-            		ASSyntax.createNumber(((ObjectInfo)o).getDistance()), 
-            		ASSyntax.createNumber(((ObjectInfo)o).getDirection()));
+    		Literal literal;
+    		if (o instanceof PlayerInfo) { // if the object is a player, we want the team name, uniform number, distance, and direction
+    			literal = ASSyntax.createLiteral(
+        				((PlayerInfo)o).getType().replaceAll("\\s","")+"Visible", 
+        				ASSyntax.createString(((PlayerInfo)o).getTeamName()),
+        				ASSyntax.createNumber(((PlayerInfo)o).getTeamNumber()),
+                		ASSyntax.createNumber(((PlayerInfo)o).getDistance()), 
+                		ASSyntax.createNumber(((PlayerInfo)o).getDirection()));
+    		} else { // if the object is not a player, we just care about its distance and direction
+    			literal = ASSyntax.createLiteral(
+        				((ObjectInfo)o).getType().replaceAll("\\s","")+"Visible", 
+                		ASSyntax.createNumber(((ObjectInfo)o).getDistance()), 
+                		ASSyntax.createNumber(((ObjectInfo)o).getDirection()));
+    		}
     		addPlayerPercept(player, literal);
     	}
     }
     
+    /** set the percepts for a given player based on what they can see, hear, and known properties about themselves*/
     public void setPlayerPercepts(String playerName, VisualInfo visualInfo, MessageInfo messageInfo) {
     	Player player = PLAYERS.get(playerName);
-    	
     	clearPercepts(playerName);
 
+    	// add percept for team name in the form: team(<name>)
+    	addPlayerPercept(playerName, ASSyntax.createLiteral("team", ASSyntax.createString(player.getM_team())));
+    	// add percept for side of field in the form: lside | risde
     	addPlayerPercept(playerName, ASSyntax.createAtom(player.getM_side()+"side"));
+    	// add percept for mode of play the agent is created during in the form: stated_at_<playmode>
     	addPlayerPercept(playerName, ASSyntax.createAtom("started_at_"+player.getM_playMode()));
     	
-    	if(player.isConnected_to_server())
+    	if(player.isConnected_to_server()) // add percept for being connected to the server
     		addPlayerPercept(playerName, ASSyntax.createAtom("connected"));    	
-        if (messageInfo != null)
+        if (messageInfo != null) // add percepts for what the agent can hear
         	updatePlayerPerceptsFromHearing(playerName, messageInfo);
-        if (visualInfo != null)
+        if (visualInfo != null) // add percepts for what the agent can see
         	updatePlayerPerceptsFromVisual(playerName, visualInfo);
     }
 

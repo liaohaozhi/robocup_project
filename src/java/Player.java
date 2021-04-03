@@ -117,6 +117,10 @@ public class Player extends Thread {
 		return connected_to_server;
 	}
 	
+	public String getM_team() {
+		return m_team;
+	}
+	
 	// ===========================================================================
 	// Implementation of SendCommand Interface
 
