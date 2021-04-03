@@ -11,3 +11,5 @@ https://github.com/liaohaozhi/robocup_project/blob/main/src/java/Player.java
 Plans
 Under https://github.com/liaohaozhi/robocup_project/tree/main/src/asl
 
+Build executable jar:
+./bin/buildJar.bat
