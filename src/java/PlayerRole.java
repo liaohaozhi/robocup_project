@@ -1,3 +1,3 @@
 public enum PlayerRole {
-    forward, goalie
+    forward, goalie, defender;
 }

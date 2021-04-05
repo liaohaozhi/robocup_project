@@ -31,6 +31,7 @@ public class RoboCupGame extends Environment {
         //add players
         addPlayer("player1", PlayerRole.forward);
         addPlayer("player2", PlayerRole.forward);
+        addPlayer("player3", PlayerRole.defender);
         addPlayer("goalie", PlayerRole.goalie);
     }
 
