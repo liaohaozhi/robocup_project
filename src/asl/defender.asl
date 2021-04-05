@@ -1,6 +1,22 @@
 
 //intentions
-!waitDefendBall.
+!start.
+
+// if the game hasn't started yet, then we can place the agent somewhere
++!start : connected & started_at_before_kick_off <-
+	.random(RandX); .random(RandY);
+	move(-1 * RandX * 15 - 20, 34 - RandY * 68.0);
+	!waitDefendBall.
+	
+// if the game has already started once the agent is connected, we don't move it anywhere
++!start : connected & not started_at_before_kick_off <-
+	!waitDefendBall.
+	
+// if the agent hasn't connected to the server, wait until this happens
++!start : not connected <-
+	skip; // this line doesn't do anything besides wait for the next simulation cycle to see if the agent is now connected
+	!start.
+
 
 //plans
 
