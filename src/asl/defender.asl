@@ -1,16 +1,14 @@
-//beliefs
-atOwnPosition.
 
 //intentions
 !waitDefendBall.
 
 //plans
 
-//Waiting at own position
-+!waitDefendBall : atOwnPosition & not ball(BallDist, BallDir) <-
+//Waiting at own position 
++!waitDefendBall : not ballVisible(BallDist, BallDir) <-
     turn(40);
     !waitDefendBall.
-+!waitDefendBall : atOwnPosition & ball(BallDist, BallDir) <-
++!waitDefendBall : ballVisible(BallDist, BallDir) <-
     if (BallDist > 20 | not BallDir == 0) {
         turn(BallDir);
 		!waitDefendBall;
@@ -18,107 +16,154 @@ atOwnPosition.
     else {
 		//reach ball
         dash(100);
-        -atOwnPosition;
 		!reachBall;
     }.
 
+
 //Reach ball
-+!reachBall : ball(BallDist, BallDir) <-
++!reachBall :  ballVisible(BallDist, BallDir) <-
 	if (not BallDir == 0) {
 		turn(BallDir);
 		!reachBall;
 	}
-	elif (BallDist > 1) {
+	elif (BallDist > 1 & BallDist < 20 ) {
 		dash(100);
 		!reachBall;
+	}
+	elif (BallDist > 20) {
+		!runBackAtOwnPosition; // It's useful when defender is going to reach the ball but suddenly the ball is gotten away by another player
 	}
 	elif (BallDist <= 1) {
 		!findOpponentGoal;
 	}.
-+!reachBall : not ball(BallDist, BallDir) <-
++!reachBall : not ballVisible(BallDist, BallDir) <-
 	turn(40);
 	!reachBall.
 			
 	
 //looking for Opponent Goal 
-+!findOpponentGoal : not opponentGoal(GoalDist, GoalDir) <-
++!findOpponentGoal : lside & not goalrVisible(GoalDist, GoalDir) <-
      turn(40);
      !findOpponentGoal.
-     
-+!findOpponentGoal : opponentGoal(GoalDist, GoalDir) <-
-     !findCenterPlayer.
-	
-//looking for other player in order to pass the ball
++!findOpponentGoal : rside & not goallVisible(GoalDist, GoalDir) <-
+     turn(40);
+     !findOpponentGoal.     
 
-// trying to find nearest player to the opponent goal
-+!findCenterPlayer : not ownPlayer(PlayerDist,PlayerDir) <-
+     
++!findOpponentGoal : lside & goalrVisible(GoalDist, GoalDir) <-
+     !findCenterPlayer. 
++!findOpponentGoal : rside & goallVisible(GoalDist, GoalDir) <-
+     !findCenterPlayer.     
+	
+// try to find a center attacker in order to pass the ball
++!findCenterPlayer : not playerVisible(PlayerTeam, PlayerNum, PlayerDist, PlayerDir) <-
 	 turn(40);
 	 !findRightPlayer.
-+!findCenterPlayer :  ownPlayer(PlayerDist,PlayerDir) <-
-	if (not PlayerDir == 0) {
-		turn(PlayerDir);
-		!passBall;
++!findCenterPlayer :  playerVisible(PlayerTeam, PlayerNum, PlayerDist, PlayerDir) <-
+	if ( PlayerTeam=="test"){    // checking if the player is team mate or not
+		if (not PlayerDir == 0) {
+			turn(PlayerDir);
+			!passBall;
+		}
+		else  {
+	   		!passBall;
+		}
 	}
-	else  {
-   		!passBall;
+	else{
+		 turn(40);
+	 	!findRightPlayer;
 	}.
-// trying to find player in the right side 
-+!findRightPlayer : not ownPlayer(PlayerDist,PlayerDir) <-
-	 turn(280);
+// try to find an attacker on right-hand side in order to pass the ball
++!findRightPlayer : not playerVisible(PlayerTeam, PlayerNum, PlayerDist, PlayerDir) <-
+	 turn(-80);
 	 !findLeftPlayer.
-+!findRightPlayer :  ownPlayer(PlayerDist,PlayerDir) <-
-	if (not PlayerDir == 0) {
-		turn(PlayerDir);
-		!passBall;
-	}
-	else  {
-   		!passBall;
++!findRightPlayer :  playerVisible(PlayerTeam, PlayerNum, PlayerDist, PlayerDir) <-
+	if ( PlayerTeam=="test"){
+		if (not PlayerDir == 0) {
+			turn(PlayerDir);
+			!passBall;
+		}	
+		else  {
+   			!passBall;
+   		}
+   	
+   	}
+   	else{
+   		turn(-80);
+	 	!findLeftPlayer;
 	}.
-// trying to find player in the left side
-+!findLeftPlayer : not ownPlayer(PlayerDist,PlayerDir) <-
+// try to find an attacker on left-hand side in order to pass the ball
++!findLeftPlayer : not playerVisible(PlayerTeam, PlayerNum, PlayerDist, PlayerDir) <-
 	!findOpponentGoaltoKick.
-+!findLeftPlayer :  ownPlayer(PlayerDist,PlayerDir) <-
-	if (not PlayerDir == 0) {
-		turn(PlayerDir);
-		!passBall;
-	}
-	else  {
-   		!passBall;
++!findLeftPlayer :  playerVisible(PlayerTeam, PlayerNum, PlayerDist, PlayerDir) <-
+	if ( PlayerTeam=="test"){
+		if (not PlayerDir == 0) {
+			turn(PlayerDir);
+			!passBall;
+		}
+		else  {
+	   		!passBall; 		
+	   		}
+	 }
+	 else{
+		!findOpponentGoaltoKick;
 	}.
 //Kick the ball to the goal
 //this state occurs if Defender couldn't find any player to pass the ball
-+!findOpponentGoaltoKick : not opponentGoal(GoalDist, GoalDir) <-
++!findOpponentGoaltoKick : lside & not goalrVisible(GoalDist, GoalDir) <-
      turn(40);
      !findOpponentGoaltoKick.
++!findOpponentGoaltoKick : rside & not goallVisible(GoalDist, GoalDir) <-
+     turn(40);
+     !findOpponentGoaltoKick.     
      
-+!findOpponentGoaltoKick : opponentGoal(GoalDist, GoalDir) <-
-     !kickBall.
++!findOpponentGoaltoKick : lside & goalrVisible(GoalDist, GoalDir) <-
+	turn(GoalDir);
+    !kickBall.
++!findOpponentGoaltoKick : rside & goallVisible(GoalDist, GoalDir) <-
+    turn(GoalDir);
+    !kickBall.     
      
 //pass the ball to attacker
-+!passBall <-
-	kick(10*PlayerDist, 0);  //kick the ball according to the distant of other player
++!passBall : playerVisible(PlayerTeam, PlayerNum, PlayerDist, PlayerDir) <-
+	kick(3*PlayerDist, 0);  //kick the ball according to the distance of other player
 	!runBackAtOwnPosition.
 	
-//Kick ball
+ // clear ball when no team mate is found to pass 
 +!kickBall <- 
 	kick(100, 0);
 	!runBackAtOwnPosition.
 
-//run back
-+!runBackAtOwnPosition : not ownPosition(PositionDist, PositionDir) <-
+//run back to defend position ( a distance of 20 from own goal)
++!runBackAtOwnPosition : lside & not goallVisible(GoalDist, GoalDir) <-
 	turn(40);
 	!runBackAtOwnPosition.
++!runBackAtOwnPosition : rside & not goalrVisible(GoalDist, GoalDir) <-
+	turn(40);
+	!runBackAtOwnPosition.	
 	
-+!runBackAtOwnPosition : ownPosition(PositionDist, PositionDir) <-
-	if (not PositionDir == 0) {
-		turn(PositionDir);
+	
++!runBackAtOwnPosition : lside & goallVisible(GoalDist, GoalDir) <-
+	if (not GoalDir == 0) {
+		turn(GoalDir);
 		!runBackAtOwnPosition;
 	}
-	elif (PositionDist > 3) {
+	elif (GoalDist > 30) {
 		dash(100);
 		!runBackAtOwnPosition;
 	}
 	else {
-		+atOwnPosition;
 		!waitDefendBall;
+	}.
++!runBackAtOwnPosition : rside & goalrVisible(GoalDist, GoalDir) <-
+	if (not GoalDir == 0) {
+		turn(GoalDir);
+		!runBackAtOwnPosition;
+	}
+	elif (GoalDist > 30) {
+		dash(100);
+		!runBackAtOwnPosition;
+	}
+	else {
+		!waitDefendBall; // waiting again for defending 
 	}.
