@@ -48,7 +48,7 @@
 // if the goal is close enough. Otherwise dribble the ball
 +!play : ballClose & lside & goalrVisible(GoalDist, GoalDir) <- 
 	if (GoalDist > 25){
-		kick(20, GoalDir);
+		kick(20, 0);
 	} else {
 		kick(100, GoalDir);
 	}
@@ -56,7 +56,7 @@
 	!play.
 +!play : ballClose & rside & goallVisible(GoalDist, GoalDir) <- 
 	if (GoalDist > 25){
-		kick(20, GoalDir);
+		kick(20, 0);
 	} else {
 		kick(100, GoalDir);
 	}
