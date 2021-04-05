@@ -5,8 +5,8 @@ MAS roboCupTeam {
 	environment: RoboCupGame
 
 	agents:
-		player1 krislet;
-		player2 krislet;
+		player1 forward;
+		player2 forward;
 		player3 defender;
 		goalie goalie;
 
