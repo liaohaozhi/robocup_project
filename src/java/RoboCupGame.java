@@ -61,7 +61,7 @@ public class RoboCupGame extends Environment {
                 ASSyntax.createString(messageInfo.getUttered()),
                 ASSyntax.createNumber(messageInfo.getTime()));
         addPlayerPercept(player, msgLiteral);
-        
+
         // After we add the visual percepts, we delete the player's messageInfo.
         // This way, we only get a percept when we receive a message, instead of 
         // every time a we get percepts after receiving the message.
@@ -129,15 +129,14 @@ public class RoboCupGame extends Environment {
             e.printStackTrace();
         }
 
+        //run default setPlayerPercepts which adds all visualInfo and messageInfo percepts
+        setPlayerPercepts(agName,  player.visualInfo,  player.messageInfo);
+
         PlayerRole role = player.playerRole;
         //Run custom perceptor for the role
-        //Otherwise run default setPlayerPercepts which adds all visualInfo and messageInfo percepts
         if (PERCEPTORS.containsKey(role)) {
             Perceptor perceptor = PERCEPTORS.get(role);
             perceptor.accept(this, player);
-        }
-        else {
-            setPlayerPercepts(agName,  player.visualInfo,  player.messageInfo);
         }
         return true; // the action was executed with success
     }
