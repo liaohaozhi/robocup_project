@@ -71,13 +71,8 @@ atGoal.
 
 //catched ball, move back to goal position
 +!freeKickBall : savedBall & message(MsgSrc, Msg, Time) <-
-	if (MsgSrc == "referee") {
-		if (Msg == "free_kick_l") {
-			move(-50, 0);
-		}
-		elif (Msg == "free_kick_r") {
-			move(50, 0);
-		}
+	if (MsgSrc == "referee" & (Msg == "free_kick_l" | Msg == "free_kick_r")) {
+        move(-50, 0);
 		-savedBall;
 		!passBall;
 	}.
