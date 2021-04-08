@@ -62,17 +62,12 @@ public class Player extends Thread {
 			DatagramPacket packet = new DatagramPacket(buffer, MSG_SIZE);
 
 			// first we need to initialize connection with server
-			init();
+			init(PlayerRole.goalie.equals(playerRole));
 
 			m_socket.receive(packet);
 
 			parseInitCommand(new String(buffer));
 			m_port = packet.getPort();
-
-			//setup before kick off
-			if(Pattern.matches("^before_kick_off.*",m_playMode)) {
-				setupPlayerPosition();
-			}
 
 			// Now we should be connected to the server
 			// and we know side, player number and play mode
@@ -82,26 +77,6 @@ public class Player extends Thread {
 			finalize();
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-	}
-
-	private void setupPlayerPosition() {
-		switch (playerRole) {
-			case goalie:
-				if (m_side == 'l') {
-					move( -50 , 0 );
-				}
-				else {
-					move( 50 , 0 );
-				}
-			case forward:
-				if(m_team == "test") {
-					move( -Math.random()*52.5 , 34 - Math.random()*68.0 );
-				}else {
-					move( Math.random()*52.5 , 34 + Math.random()*68.0 );
-				}
-			default:
-				//move( -Math.random()*52.5 , 34 - Math.random()*68.0 );
 		}
 	}
 
@@ -198,8 +173,12 @@ public class Player extends Thread {
 	// Here comes collection of communication function
 	// ---------------------------------------------------------------------------
 	// This function sends initialization command to the server
-	private void init() {
-		send("(init " + m_team + " (version 9))");
+	private void init(boolean isGoalie) {
+		String msg = "(init " + m_team + " (version 9)";
+		if (isGoalie)
+			msg += " (goalie)";
+		msg += ")";
+		send(msg);
 	}
 
 	// ---------------------------------------------------------------------------
