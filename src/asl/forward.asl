@@ -29,10 +29,11 @@
 
 // if the ball is visible, then we can determine if it is near or far,
 // and we can determine if we are facing the ball (or should turn to the ball)
-+!play : ballVisible(BallDist, BallDir) & not ballClose <-
++!play : ballVisible(BallDist, BallDir) & not ballClose & not hasBall <-
 	if (BallDir < 15 & BallDir > -15){
 		if (BallDist < 1){
 			+ballClose;
+			+hasBall;
 		} else {
 			dash(100);
 		}
@@ -46,27 +47,67 @@
 	
 // if the ball is close and opponent goal is visible, kick the ball at the goal
 // if the goal is close enough. Otherwise dribble the ball
-+!play : ballClose & lside & goalrVisible(GoalDist, GoalDir) <- 
++!play : ballClose & hasBall & lside & goalrVisible(GoalDist, GoalDir) & not opponentClose<- 
 	if (GoalDist > 25){
 		kick(20, 0);
 	} else {
 		kick(100, GoalDir);
 	}
 	-ballClose;
+	-hasBall
 	!play.
-+!play : ballClose & rside & goallVisible(GoalDist, GoalDir) <- 
+	
++!play : ballClose & hasBall & rside & goallVisible(GoalDist, GoalDir) & not opponentClose <- 
 	if (GoalDist > 25){
 		kick(20, 0);
 	} else {
 		kick(100, GoalDir);
 	}
 	-ballClose;
+	-hasBall;
 	!play.
 	
 // if the ball is close and opponent goal is not visible, turn to look for the goal
 +!play : ballClose & lside & not goalrVisible(GoalDist, GoalDir)  <- 
 	turn(30);
 	!play.
-+!play : ballClose & rside & not goallVisible(GoalDist, GoalDir) <- 
++!play : ballClose & rside & not goallVisible(GoalDist, GoalDir)  <- 
 	turn(30);
 	!play.
+	
+
+//if the ball is close and player has the ball and the player sees an opponent close to him
+//so if he can see his team-mate, try to pass him
++!play : ballClose & hasBall & playerVisible(PlayerTeam, PlayerNum, PlayerDist, PlayerDir) <-
+	if ( PlayerTeam == "test"){ //if they are in the same team
+		if(PlayerNum > 2 ){  // I assume player number less than 2 are defenders, and player numbers greater than 2 are forwards (should ask)
+			if (not PlayerDir == 0) {
+				turn(PlayerDir);
+				+readyToPass
+				!passBall;
+			}
+			else  {
+				+readyToPass
+		   		!passBall;
+			}
+		}
+	}
+	else{
+	 	 if(PlayerDist < 10){
+	 	 	+opponentClose
+	 	 }else {
+	 	 	-opponentClose
+	 	 }
+	}; !play.
+
+
+
+//pass the ball to an attacker
++!passBall : readyToPass & opponentClose & playerVisible(PlayerTeam, PlayerNum, PlayerDist, PlayerDir) <-
+	kick(2*PlayerDist, PlayerDir); 
+	-ballClose;
+	-hasBall;
+	-readyTopass;
+	-opponentClose;
+	!play.	
+		

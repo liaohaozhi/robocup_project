@@ -95,6 +95,11 @@ public class Player extends Thread {
 					move( 50 , 0 );
 				}
 			case forward:
+				if(m_team == "test") {
+					move( -Math.random()*52.5 , 34 - Math.random()*68.0 );
+				}else {
+					move( Math.random()*52.5 , 34 + Math.random()*68.0 );
+				}
 			default:
 				//move( -Math.random()*52.5 , 34 - Math.random()*68.0 );
 		}
