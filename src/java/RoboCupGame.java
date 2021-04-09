@@ -70,19 +70,35 @@ public class RoboCupGame extends Environment {
 
     /** update player percepts with visualInfo contents*/
     private void updatePlayerPerceptsFromVisual(String player, VisualInfo visualInfo) {   	
-    	addPerceptsForObjectInfos(player, visualInfo.getBallList());
-    	addPerceptsForObjectInfos(player, visualInfo.getGoalList());
-    	addPerceptsForObjectInfos(player, visualInfo.getFlagList());	
-    	addPerceptsForObjectInfos(player, visualInfo.getPlayerList());
+    	addPerceptsForObjectInfos(player, visualInfo.getBallList(), "");
+    	addPerceptsForObjectInfos(player, visualInfo.getGoalList(), "");
+    	addPerceptsForObjectInfos(player, visualInfo.getFlagList(), "");
+    	
+    	Vector<?> visiblePlayers =  visualInfo.getPlayerList();
+    	addPerceptsForObjectInfos(player, visiblePlayers, "");
+    	
+    	Vector<PlayerInfo> visibleTeammates = new Vector<>();
+    	Vector<PlayerInfo> visibleOpponents = new Vector<>();
+    	for(Object p : visiblePlayers) {
+    		PlayerInfo playerInfo = (PlayerInfo) p;
+    		if (!playerInfo.getTeamName().isEmpty()) { // if we can't tell what team the player is, we don't assume either side
+    			if(playerInfo.getTeamName().equals(PLAYERS.get(player).getM_team()))
+        			visibleTeammates.add(playerInfo);
+        		else
+        			visibleOpponents.add(playerInfo);
+    		}
+    	}
+    	addPerceptsForObjectInfos(player, visibleTeammates, "team");
+    	addPerceptsForObjectInfos(player, visibleOpponents, "opponent");
     }
     
     /** add the direction and distances for a list of visible objects to a player's percepts*/
-    private void addPerceptsForObjectInfos(String player, Vector<?> objects) {
+    private void addPerceptsForObjectInfos(String player, Vector<?> objects, String prefix) {
     	for(Object o: objects) {
     		Literal literal;
     		if (o instanceof PlayerInfo) { // if the object is a player, we want the team name, uniform number, distance, and direction
     			literal = ASSyntax.createLiteral(
-        				((PlayerInfo)o).getType().replaceAll("\\s","")+"Visible", 
+    					prefix+((PlayerInfo)o).getType().replaceAll("\\s","")+"Visible", 
         				ASSyntax.createString(((PlayerInfo)o).getTeamName()),
         				ASSyntax.createNumber(((PlayerInfo)o).getTeamNumber()),
                 		ASSyntax.createNumber(((PlayerInfo)o).getDistance()), 
