@@ -44,7 +44,6 @@
 		turn(BallDir);
 	};!play.
 	
-	
 // if the ball is close and opponent goal is visible, kick the ball at the goal
 +!play : ballClose & lside & goalrVisible(GoalDist, GoalDir) <- 
 	kick(100, GoalDir);
@@ -62,11 +61,3 @@
 +!play : ballClose & rside & not goallVisible(GoalDist, GoalDir) <- 
 	turn(30);
 	!play.
-	
-//if the ball is close and there is an opponent in front of the player
-+!play : ballClose & playerVisible(PlayerTeam, PlayerNum, PlayerDist, PlayerDir) <- 
-	
-	turn(30);
-	!play.
-
-	
