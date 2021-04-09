@@ -33,7 +33,7 @@
 	if (BallDir < 15 & BallDir > -15){
 		if (BallDist < 1){
 			+ballClose;
-			!passOrKeppBall;
+			!passOrKeepBall;
 		} else {
 			dash(100);
 		}
