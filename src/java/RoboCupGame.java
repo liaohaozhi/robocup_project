@@ -29,16 +29,15 @@ public class RoboCupGame extends Environment {
         PERCEPTORS.put(PlayerRole.goalie, new Perceptor.Goalie());
 
         //add players
-        addPlayer("player1", PlayerRole.forward, "test");
-        addPlayer("player2", PlayerRole.forward, "test");
-        addPlayer("player3", PlayerRole.defender, "test");
-        addPlayer("goalie1", PlayerRole.goalie, "test");
-
+        addPlayer("player1", PlayerRole.forward);
+        addPlayer("player2", PlayerRole.forward);
+        addPlayer("player3", PlayerRole.defender);
+        addPlayer("goalie", PlayerRole.goalie);
     }
 
-    private void addPlayer(String playerName, PlayerRole role, String team) {
+    private void addPlayer(String playerName, PlayerRole role) {
         try {
-            Player player = new Player(InetAddress.getByName("localhost"), PORT_NUMBER, team, playerName, role);
+            Player player = new Player(InetAddress.getByName("localhost"), PORT_NUMBER, "test", playerName, role);
             PLAYERS.put(playerName, player);
             player.start();
         } catch (SocketException e) {
