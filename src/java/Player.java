@@ -72,7 +72,12 @@ public class Player extends Thread {
 			// Now we should be connected to the server
 			// and we know side, player number and play mode
 			while (m_playing) {
-				parseSensorInformation(receive());
+				try {
+					parseSensorInformation(receive());
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 			finalize();
 		} catch (IOException e) {
@@ -219,7 +224,9 @@ public class Player extends Thread {
 		int time;
 		String sender;
 		String uttered;
-
+		if (!m.matches()) {
+			throw new IOException(message);
+		}
 		time = Integer.parseInt(m.group(1));
 		sender = m.group(2);
 		uttered = m.group(3);
