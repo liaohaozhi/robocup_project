@@ -25,11 +25,11 @@ atGoal.
     turn(40);
     !waitSaveBall.
 +!waitSaveBall : atGoal & ball(BallDist, BallDir) <-
-    if (BallDist > 15 | not BallDir == 0) {
+    if (BallDist > 22 | not BallDir == 0) {
         turn(BallDir);
 		!waitSaveBall;
     }
-    elif (BallDist > 2 & BallDist <= 15) {
+    elif (BallDist > 2 & BallDist <= 22) {
 		//reach ball
         dash(100);
         -atGoal;
@@ -40,8 +40,8 @@ atGoal.
 	}.
 
 //Reach ball
-+!reachBall : oppGoal(Dist, Dir) <-
-	if (Dist > 90) {
++!reachBall : flagcVisible(Dist, Dir) <-
+	if (Dist > 36) {
 		!chaseBall;
 	}
 	else {
