@@ -127,8 +127,10 @@ public class RoboCupGame extends Environment {
     	
     	if(player.isConnected_to_server()) // add percept for being connected to the server
     		addPlayerPercept(playerName, ASSyntax.createAtom("connected"));    	
-        if (messageInfo != null) // add percepts for what the agent can hear
+        if (messageInfo != null) { // add percepts for what the agent can hear
+        	logger.info("*************player " + playerName + ", Role: "+  player.playerRole + " , hears: " + messageInfo);
         	updatePlayerPerceptsFromHearing(playerName, messageInfo);
+        }
         if (visualInfo != null) // add percepts for what the agent can see
         	updatePlayerPerceptsFromVisual(playerName, visualInfo);
     }
