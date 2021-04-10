@@ -40,19 +40,47 @@ atGoal.
 	}.
 
 //Reach ball
-+!reachBall : ball(BallDist, BallDir) <-
++!reachBall : oppGoal(Dist, Dir) <-
+	if (Dist > 90) {
+		!chaseBall;
+	}
+	else {
+		!runBackAtOwnGoal;
+	}.
+
++!reachBall : flagctVisible(Dist, Dir) <-
+	if (Dist > 40) {
+		!chaseBall;
+	}
+	else {
+		!runBackAtOwnGoal;
+	}.
+
++!reachBall : flagcbVisible(Dist, Dir) <-
+	if (Dist > 40) {
+		!chaseBall;
+	}
+	else {
+		!runBackAtOwnGoal;
+	}.
+	
++!reachBall : not oppGoal(Dist, Dir) & not flagctVisible(Dt,Dirt) & not flagcbVisible(Db,Dirb) <-
+	!runBackAtOwnGoal.
+
++!chaseBall : ball(BallDist, BallDir) <-
 	if (not BallDir == 0) {
 		turn(BallDir);
 		!reachBall;
 	}
-	elif (BallDist > 2) {
+	elif (BallDist >= 1) {
 		dash(100);
 		!reachBall;
 	}
-	elif (BallDist <= 2) {
+	elif (BallDist < 1) {
 		!saveBall;
 	}.
-+!reachBall : not ball(BallDist, BallDir) <-
+
++!chaseBall : not ball(BallDist, BallDir) <-
 	turn(40);
 	!reachBall.
 
@@ -77,8 +105,8 @@ atGoal.
 		!passBall;
 	}.
 
-//pass ball to team mate
-+!passBall : not playerVisible(PlayerTeam, PlayerNum, PlayerDist, PlayerDir) <-
+//pass ball to team mate or long kick to opp goal
++!passBall : not playerVisible(PlayerTeam, PlayerNum, PlayerDist, PlayerDir) & not oppGoal(Dist, Dir) <-
 	turn(40);
 	!passBall.
 
@@ -91,6 +119,10 @@ atGoal.
 		 turn(40);
 		 !passBall;
 	}.
+
++!passBall : not playerVisible(PlayerTeam, PlayerNum, PlayerDist, PlayerDir) & oppGoal(Dist, Dir) <-
+	kick(Dist, Dir);
+	!runBackAtOwnGoal.
 
 	
 //run back
