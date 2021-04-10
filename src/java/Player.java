@@ -213,14 +213,13 @@ public class Player extends Thread {
 	// ---------------------------------------------------------------------------
 	// This function parses hear information
 	private void parseHear(String message) throws IOException {
+		logger.info(m_number + " hearing " + message);
 		// get hear information
 		Matcher m = hear_pattern.matcher(message);
 		int time;
 		String sender;
 		String uttered;
-		if (!m.matches()) {
-			throw new IOException(message);
-		}
+
 		time = Integer.parseInt(m.group(1));
 		sender = m.group(2);
 		uttered = m.group(3);

@@ -61,7 +61,7 @@ public class RoboCupGame extends Environment {
                 ASSyntax.createString(messageInfo.getUttered()),
                 ASSyntax.createNumber(messageInfo.getTime()));
         addPlayerPercept(player, msgLiteral);
-
+    	logger.info("*****player " + player + " , hears: " + messageInfo);
         // After we add the visual percepts, we delete the player's messageInfo.
         // This way, we only get a percept when we receive a message, instead of 
         // every time a we get percepts after receiving the message.
@@ -127,10 +127,8 @@ public class RoboCupGame extends Environment {
     	
     	if(player.isConnected_to_server()) // add percept for being connected to the server
     		addPlayerPercept(playerName, ASSyntax.createAtom("connected"));    	
-        if (messageInfo != null) { // add percepts for what the agent can hear
-        	logger.info("*************player " + playerName + ", Role: "+  player.playerRole + " , hears: " + messageInfo);
+        if (messageInfo != null)  // add percepts for what the agent can hear
         	updatePlayerPerceptsFromHearing(playerName, messageInfo);
-        }
         if (visualInfo != null) // add percepts for what the agent can see
         	updatePlayerPerceptsFromVisual(playerName, visualInfo);
     }
