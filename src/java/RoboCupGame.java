@@ -50,7 +50,7 @@ public class RoboCupGame extends Environment {
     //updating player's percepts
     void addPlayerPercept(String player, Literal literal) {
         addPercept(player, literal);
-        logger.info("update " + player + " percepts: " + literal);
+        //logger.info("update " + player + " percepts: " + literal);
     }
 
     /** update player percepts with messageInfo contents*/

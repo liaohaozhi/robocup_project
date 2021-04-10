@@ -29,12 +29,15 @@
 	};!reachBall.	
 	
 // if the ball is visible turn towards it and run
-+!reachBall : ballVisible(BallDist, BallDir)  <-
++!reachBall : ballVisible(BallDist, BallDir) & not message(MsgSrc, Msg, Time) & not haveBall <-
 	if (BallDir < 15 & BallDir > -15){
 		if (BallDist < 1){ // we have reached the ball
+			say("haveBall");
+			+haveBall;
 			!passOrKeepBall;
 		} else { // we can see the ball, run towards it	
 			dash(100);
+			-haveBall;
 			!reachBall;
 		}
 	} elif (BallDir > 0) { // turn to face the visible ball
@@ -47,6 +50,100 @@
 		!reachBall;
 	}.
 	
++!reachBall : ballVisible(BallDist, BallDir) & not message(MsgSrc, Msg, Time) & haveBall <-
+	if (BallDir < 15 & BallDir > -15){
+		if (BallDist < 1){ // we have reached the ball
+			say("haveBall");
+			+haveBall;
+			!passOrKeepBall;
+		} else { // we can see the ball, run towards it	
+			dash(100);
+			-haveBall;
+			!reachBall;
+		}
+	} elif (BallDir > 0) { // turn to face the visible ball
+		+ballRightOfPlayer;
+		turn(BallDir);
+		!reachBall;
+	} elif (BallDir < 0) { // turn to face the visible ball
+		-ballRightOfPlayer;
+		turn(BallDir);
+		!reachBall;
+	}.
+
++!reachBall : ballVisible(BallDist, BallDir) & message(MsgSrc, Msg, Time) & not haveBall <-
+	if (BallDir < 15 & BallDir > -15){
+		if (BallDist < 1){ // we have reached the ball
+			say("haveBall");
+			+haveBall;
+			!passOrKeepBall;
+		} elif(Msg == "haveBall") { // we can see the ball, run towards it	
+			-haveBall;
+			!gotoNet;
+		}else{
+			!reachBall;
+		}
+	} elif (BallDir > 0) { // turn to face the visible ball
+		+ballRightOfPlayer;
+		turn(BallDir);
+		!reachBall;
+	} elif (BallDir < 0) { // turn to face the visible ball
+		-ballRightOfPlayer;
+		turn(BallDir);
+		!reachBall;
+	}.	
+	
++!reachBall : ballVisible(BallDist, BallDir) & haveBall <-
+	if (BallDir < 15 & BallDir > -15){
+		if (BallDist < 1){ // we have reached the ball
+			say("haveBall");
+			!passOrKeepBall;
+		} else { // This should not happen	
+			-haveBall;
+			!reachBall;
+		}
+	} elif (BallDir > 0) { // turn to face the visible ball
+		+ballRightOfPlayer;
+		turn(BallDir);
+		!reachBall;
+	} elif (BallDir < 0) { // turn to face the visible ball
+		-ballRightOfPlayer;
+		turn(BallDir);
+		!reachBall;
+	}.	
+	
+//go toward the net to be ready to catch team-mate's ball	
++!gotoNet : lside & goalrVisible(GoalDist, GoalDir) <-
+	if (GoalDir < 15 & GoalDir > -15){
+		if (GoalDist < 15){ 
+			!!waitforBall;
+		} else { // we can see the goal, run towards it	
+			dash(120);
+			!gotoNet;
+		}
+	} elif (BallDir > 0) { 
+		turn(GoalDir);
+		!gotoNet;
+	} elif (GoalDir < 0) {
+		turn(GoalDir);
+		!gotoNet;
+	}.
+	
++!gotoNet : rside & goallVisible(GoalDist, GoalDir) <-
+	if (GoalDir < 15 & GoalDir > -15){
+		if (GoalDist < 15){ 
+			!waitforBall;
+		} else { // we can see the goal, run towards it	
+			dash(120);
+			!gotoNet;
+		}
+	} elif (BallDir > 0) { 
+		turn(GoalDir);
+		!gotoNet;
+	} elif (GoalDir < 0) {
+		turn(GoalDir);
+		!gotoNet;
+	}.	
 
 //decide whether keep the ball or pass it. We try to pass the ball if there is an opponent near
 +!passOrKeepBall : not opponentplayerVisible(_, _, _, _) <-
