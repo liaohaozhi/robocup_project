@@ -77,7 +77,7 @@
 			say(gotBall);
 			+haveBall;
 			!passOrKeepBall;
-		} elif(Msg == "gotBall") { // we can see the ball, run towards it	
+		} elif(.substring("gotBall", Msg) & .substring("our",Msg)) { // we can see the ball, run towards it	
 			-haveBall;
 			!gotoNet;
 		}else{
@@ -97,7 +97,7 @@
 +!reachBall : ballVisible(BallDist, BallDir) & haveBall <-
 	if (BallDir < 15 & BallDir > -15){
 		if (BallDist < 1){ // we have reached the ball
-			say(haveBall);
+			say(gotBall);
 			!passOrKeepBall;
 		} else { // This should not happen	
 			-haveBall;
@@ -122,7 +122,7 @@
      !gotoNet.     
      
 +!gotoNet : lside & goalrVisible(GoalDist, GoalDir) & not haveBall<-
-	if(GoalDist<15){
+	if(GoalDist<25){
 		!waitforBall;
 	} elif(GoalDir < 10 & GoalDir > -10){
 		dash(100);
@@ -133,7 +133,7 @@
     }.
        	
 +!gotoNet : rside & goallVisible(GoalDist, GoalDir) & not haveBall<-
-	if(GoalDist<15){
+	if(GoalDist<25){
 		!waitforBall;
 	} elif(GoalDir < 10 & GoalDir > -10){
 		dash(100);
@@ -154,64 +154,21 @@
     }
     else {
 		//reach ball
-        dash(120);
+        dash(20);
 		!reachBall;
     }.   
-       	
-//go toward the net to be ready to catch team-mate's ball	
-/* +!gotoNet : lside & goalrVisible(GoalDist, GoalDir) <-
-	if (GoalDir < 15 & GoalDir > -15){
-		if (GoalDist < 15){ 
-			!!waitforBall;
-		} else { // we can see the goal, run towards it	
-			dash(120);
-			!gotoNet;
-		}
-	} elif (GoalDir > 0) { 
-		turn(GoalDir);
-		!gotoNet;
-	} elif (GoalDir < 0) {
-		turn(GoalDir);
-		!gotoNet;
-	}.
-	
-+!gotoNet : rside & goallVisible(GoalDist, GoalDir) <-
-	if (GoalDir < 15 & GoalDir > -15){
-		if (GoalDist < 15){ 
-			!waitforBall;
-		} else { // we can see the goal, run towards it	
-			dash(120);
-			!gotoNet;
-		}
-	} elif (GoalDir > 0) { 
-		turn(GoalDir);
-		!gotoNet;
-	} elif (GoalDir < 0) {
-		turn(GoalDir);
-		!gotoNet;
-	}.	
-	
-+!waitforBall : not ballVisible(BallDist, BallDir) <-
-    turn(40);
-    !waitforBall.
-
-+!waitforBall : ballVisible(BallDist, BallDir) <-
-    if (BallDist > 20 | not BallDir == 0) {
-        turn(BallDir);
-		!waitforBall;
-    }
-    else {
-		//reach ball
-        dash(120);
-		!reachBall;
-    }.
-    */
-
+    
 //decide whether keep the ball or pass it. We try to pass the ball if there is an opponent near
 +!passOrKeepBall : not opponentplayerVisible(_, _, _, _) <-
 	!keepBall. 
 +!passOrKeepBall : opponentplayerVisible(_, _, PlayerDist, _) <-
-	if(PlayerDist < 10){
+	if(PlayerDist < 20){
+		!findCenterPlayer;
+	}else{
+		!keepBall;
+	}.
++!passOrKeepBall : not opponentplayerVisible(_, _, _, _) &  teamplayerVisible(_, _, PlayerDist, _) <-
+	if(PlayerDist > 10){
 		!findCenterPlayer;
 	}else{
 		!keepBall;
@@ -229,14 +186,14 @@
 // if the goal is close enough. Otherwise dribble the ball
 +!keepBall :  lside & goalrVisible(GoalDist, GoalDir)  <- 
 	if (GoalDist > 25){
-		kick(20, 0);
+		kick(40, 0);
 	} else {
 		kick(100, GoalDir);
 	};
 	!reachBall.
 +!keepBall :  rside & goallVisible(GoalDist, GoalDir)  <- 
 	if (GoalDist > 25){
-		kick(20, 0);
+		kick(40, 0);
 	} else {
 		kick(100, GoalDir);
 	};
@@ -252,15 +209,31 @@
 
 // try to find an attacker on right-hand side in order to pass the ball
 +!findRightPlayer : not teamplayerVisible(_, _, _, _) <-
-	 turn(-80);
-	 !findLeftPlayer.
+	 turn(40);
+	 !findRightRightPlayer.
 +!findRightPlayer : teamplayerVisible(_, _, _, PlayerDir) <-
 	kick(3*PlayerDist, PlayerDir); 
 	!reachBall.
 
+// try to find an attacker on right-hand side in order to pass the ball
++!findRightRightPlayer : not teamplayerVisible(_, _, _, _) <-
+	 turn(-120);
+	 !findLeftPlayer.
++!findRightRightPlayer : teamplayerVisible(_, _, _, PlayerDir) <-
+	kick(3*PlayerDist, PlayerDir); 
+	!reachBall.
+	
 // try to find an attacker on left-hand side in order to pass the ball
 +!findLeftPlayer : not teamplayerVisible(_, _, _, _) <-
-	!keepBall. // at this point we havent found a player left or right, so we wont pass the ball
+	turn(-40);
+	!findLeftLeftPlayer. // at this point we havent found a player left or right, so we wont pass the ball
 +!findLeftPlayer : teamplayerVisible(_, _, PlayerDist, PlayerDir) <-
+	kick(3*PlayerDist, PlayerDir); 
+	!reachBall.
+
+// try to find an attacker on left-hand side in order to pass the ball
++!findLeftLeftPlayer : not teamplayerVisible(_, _, _, _) <-
+	!keepBall. // at this point we havent found a player left or right, so we wont pass the ball
++!findLeftLeftPlayer : teamplayerVisible(_, _, PlayerDist, PlayerDir) <-
 	kick(3*PlayerDist, PlayerDir); 
 	!reachBall.
