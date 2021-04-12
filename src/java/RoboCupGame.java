@@ -32,10 +32,14 @@ public class RoboCupGame extends Environment {
         addPlayer("player1", PlayerRole.forward, "test");
         addPlayer("player2", PlayerRole.forward, "test");
         addPlayer("player3", PlayerRole.defender, "test");
-        addPlayer("goalie", PlayerRole.goalie, "test");
-        addPlayer("player4", PlayerRole.forward, "carleton");
-        addPlayer("player5", PlayerRole.defender, "carleton");
-        addPlayer("player6", PlayerRole.defender, "carleton");
+        addPlayer("player4", PlayerRole.defender, "test");
+        addPlayer("player5", PlayerRole.goalie, "test");
+
+        addPlayer("player6", PlayerRole.forward, "carleton");
+        addPlayer("player7", PlayerRole.forward, "carleton");
+        addPlayer("player8", PlayerRole.defender, "carleton");
+        addPlayer("player9", PlayerRole.defender, "carleton");
+        addPlayer("player10", PlayerRole.goalie, "carleton");
     }
 
     private void addPlayer(String playerName, PlayerRole role, String team) {
