@@ -9,6 +9,9 @@ MAS roboCupTeam {
 		player2 forward;
 		player3 defender;
 		goalie goalie;
+		player4 forward;
+		player5 defender;
+		player6 defender;
 
 	aslSourcePath:
 		"src/asl";

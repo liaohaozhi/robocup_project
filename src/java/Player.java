@@ -72,7 +72,12 @@ public class Player extends Thread {
 			// Now we should be connected to the server
 			// and we know side, player number and play mode
 			while (m_playing) {
-				parseSensorInformation(receive());
+				try {
+					parseSensorInformation(receive());
+					
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 			finalize();
 		} catch (IOException e) {
@@ -213,6 +218,7 @@ public class Player extends Thread {
 	// ---------------------------------------------------------------------------
 	// This function parses hear information
 	private void parseHear(String message) throws IOException {
+		logger.info(m_number + " hearing " + message);
 		// get hear information
 		Matcher m = hear_pattern.matcher(message);
 		int time;
